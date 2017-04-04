@@ -1,0 +1,7 @@
+7771,"Boeing",2000
+7772,"Boeing",2000
+7571,"Airbus",3800
+3801,"Airbus",6000
+3802,"Airbus",6000
+2001,"Bombardier",1000
+3001,"Boeing",3800

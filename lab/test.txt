@@ -1,0 +1,13 @@
+find the eids of employees who are certified for the largest number of aircraft.
+
+
+
+select count(a.aid),e.eid from 
+employee e,aircraft a,flights f,certified c
+where a.aid = c.aid and c.eid=e.eid and a.crusingrange > f.distance
+and e.salary>150000 group by e.eid;
+
+
+
+
+select e1.ename,e1.eid from employee e1 where e1.salary=(select max(e2.salary) from employee e2 where e2.salary!=(select max(e3.salary) from employee e3));

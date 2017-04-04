@@ -1,0 +1,15 @@
+1.
+
+select t.*
+   	 from (select t.*, (@rn := @rn + 1) as seqnum
+          from employee t cross join
+               (select @rn := 1) vars
+          order by ssn
+          ) t
+    where mod(seqnum, 2) = 0;
+
+3.
+
+SELECT YEAR(STR_TO_DATE(bdate, "%Y/%m/%d")) as year from employee;
+
+SELECT EXTRACT(YEAR FROM bdate) as year FROM employee;

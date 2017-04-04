@@ -1,0 +1,348 @@
+
+1.Find the names of aircraft such that all pilots certified to operate them earn more than
+$80,000
+
+mysql> select distinct aname from aircraft,employee,certified where certified.eid = employee.eid  and employee.salary > 130000 and aircraft.aid = certified.aid;
++--------------+
+| aname        |
++--------------+
+| "Boeing"     |
+| "Bombardier" |
+| "Airbus"     |
++--------------+
+3 rows in set (0.00 sec)
+
+2.For each pilot who is certified for more than three aircraft, find the eid and the maximum
+cruisingrange of the aircraft for which she or he is certified.
+
+mysql> select e.eid,max(crusingrange) 
+    -> from employee e join certified c on e.eid=c.eid join aircraft a on c.aid=a.aid group by e.eid having count(a.aid)>=3;
++------+-------------------+
+| eid  | max(crusingrange) |
++------+-------------------+
+| 9443 |              6000 |
+| 9927 |              6000 |
++------+-------------------+
+2 rows in set (0.04 sec)
+
+3. Find the names of pilots whose salary is less than the price of the cheapest route from
+Los Angeles to Honolulu.
+
+mysql> select ename from employee where salary >(select min(price) from flights where origin="Patna" and destination = "Indore"); 
++---------------------+
+| ename               |
++---------------------+
+| "Daanish Gupta"     |
+| "Manish Singh"      |
+| "Sonali Meena"      |
+| "Aditi Musunur"     |
+| "Naveen Tikaram"    |
+| "Radhika Anuj"      |
+| "Prateek Ram"       |
+| "Suman Sumit"       |
+| "Rutuja Daman"      |
+| "Siddharth Thakur"  |
+| "Deepa Arora"       |
+| "Rashi Khan"        |
+| "Praveen Halaal"    |
+| "Zoraan Lee"        |
+| "Jamal Ali"         |
+| "Kaajol Kumari"     |
+| "Amit Agarwal"      |
+| "Dharmesh Harish"   |
+| "Santosh Subramani" |
++---------------------+
+19 rows in set (0.00 sec)
+
+4. For all aircraft with cruisingrange over 1000 miles, find the name of the aircraft and the average salary of all pilots certified for this aircraft.
+
+mysql> select a.aname,avg(salary)
+	-> from employee e,aircraft a, certified c
+    -> where a.aid = c.aid
+    -> and e.eid=c.eid
+    -> and a.crusingrange>2000
+    -> group by a.aname;
++----------+-------------+
+| aname    | avg(salary) |
++----------+-------------+
+| "Airbus" | 154833.3333 |
+| "Boeing" | 177800.0000 |
++----------+-------------+
+2 rows in set (0.00 sec)
+
+5. Find the names of pilot/s certified for some Boeing aircraft who drove the maximum distance on all flights departing from Hyderabad.
+
+
+select e.eid from employee e join certified c on c.eid=e.eid join aircraft a on a.aid=c.aid  where (select a1.aid from aircraft a1,flights f where a.aname='Boeing' and a.crusingrange>f.distance and origin="Chennai");
+Empty set (0.00 sec)
+
+
+
+
+6. Find the aids of all aircraft that can be used on routes from Los Angeles to Chicago.
+
+mysql> select a.aid from 
+    -> flights f,aircraft a
+    -> where a.crusingrange > f.distance
+    -> and f.origin="Chennai" and 
+    -> f.destination="Delhi";
++------+
+| aid  |
++------+
+| 3001 |
+| 3801 |
+| 3802 |
+| 7571 |
++------+
+4 rows in set (0.00 sec)
+
+7.Identify the routes that can be piloted by every pilot who makes more than $100,000.
+
+
+mysql> select distinct origin,destination 
+from flights f 
+where not exists
+	(select *from employee e where salary>150000 and not exists(select * from aircraft a,certified c  where a.crusingrange>f.distance and e.eid=c.eid and c.aid=a.aid));
+
++--------+-------------+
+| origin | destination |
++--------+-------------+
+| Goa    | Manglore    |
+| Manali | Amritsar    |
++--------+-------------+
+2 rows in set (0.04 sec)
+
+8. Print the enames of pilots who can operate planes with cruisingrange greater than 3000 miles but are not certified on any Boeing aircraft.
+
+mysql> mysql> select e.eid,a.aid from employee e,aircraft a,certified c where a.aid=c.ai.eid=c.eid and a.aname not like "%Boeing%" and a.crusingrange>3000;
++------+------+
+| eid  | aid  |
++------+------+
+| 9927 | 3801 |
+| 9335 | 3801 |
+| 9927 | 3801 |
+| 9443 | 3801 |
+| 9726 | 3802 |
+| 9443 | 3802 |
+| 9302 | 7571 |
+| 9218 | 7571 |
+| 9981 | 7571 |
++------+------+
+9 rows in set (0.00 sec)
+
+
+9.Compute the difference between the average salary of a pilot and the average salary of
+all employees (including pilots)
+
+
+mysql> select (select avg(e1.salary) from employee e1,certified c where e1.eid=c.eid)-avg(e.salary) as SAL_DIFF from employee e;
++------------+
+| SAL_DIFF   |
++------------+
+| 17557.6316 |
++------------+
+1 row in set (0.00 sec)
+
+
+10.Print the name and salary of every nonpilot whose salary is more than the average salary
+for pilots.
+
+mysql> select distinct e.ename from employee e,certified c1
+    -> where e.eid not in (select c.eid from certified c)
+    -> and e.salary < (select avg(e1.salary) from employee e1,certified c 
+    -> where e1.eid=c.eid);
++----------------+
+| ename          |
++----------------+
+| "Radhika Anuj" |
+| "Sonali Meena" |
+| "Manish Singh" |
+| "Deepa Arora"  |
++----------------+
+4 rows in set (0.00 sec)
+
+
+11.Print the names of employees who are certified only on aircrafts with cruising range longer than 1000 miles.
+
+
+mysql> select e.ename from employee e,certified c,aircraft a
+    -> where e.eid=c.eid and a.aid =c.aid
+    -> and a.crusingrange>5000;
++------------------+
+| ename            |
++------------------+
+| "Rashi Khan"     |
+| "Praveen Halaal" |
+| "Rashi Khan"     |
+| "Amit Agarwal"   |
+| "Kaajol Kumari"  |
+| "Amit Agarwal"   |
++------------------+
+6 rows in set (0.00 sec)
+
+
+12.Print the names of employees who are certified only on aircrafts with cruising range shorter than 1000 miles, but on at least two such aircrafts.
+
+
+mysql> select e.ename from employee e,certified c,aircraft a
+    -> where e.eid=c.eid and a.aid =c.aid
+    -> and a.crusingrange < 3000
+    -> group by e.eid,ename having count(*)>1;
++--------------+
+| ename        |
++--------------+
+| "Zoraan Lee" |
++--------------+
+1 row in set (0.01 sec)
+
+13. Print the names of employees who are certified only on aircrafts with cruising range
+    longer than 1000 miles and who are certified on some Boeing aircraft.
+
+mysql> select e.ename from employee e,certified c,aircraft a
+    -> where e.eid=c.eid and a.aid =c.aid
+    -> and ( ( a.crusingrange > 1000 and a.aname like "Boeing")
+    -> or ( a.crusingrange < 1000 and a.aname like "Boeing") );
+Empty set (0.00 sec)
+
+14.Find the names of pilots certified for some Boeing aircraft.
+
+mysql> select distinct e.ename from employee e,certified c,aircraft a where e.eid=c.eid and a.aid=c.aid and aname like '%Boeing%';
++---------------------+
+| ename               |
++---------------------+
+| "Dharmesh Harish"   |
+| "Santosh Subramani" |
+| "Daanish Gupta"     |
+| "Aditi Musunur"     |
+| "Rashi Khan"        |
+| "Zoraan Lee"        |
+| "Naveen Tikaram"    |
+| "Prateek Ram"       |
++---------------------+
+8 rows in set (0.00 sec)
+
+15. Find the names of pilots certified for some Boeing aircraft.
+
+mysql> select distinct e.eid from employee e,certified c,aircraft a where e.eid=c.eid and a.aid=c.aid and aname like '%Boeing%';
++------+
+| eid  |
++------+
+| 9512 |
+| 9322 |
+| 9223 |
+| 9326 |
+| 9927 |
+| 9128 |
+| 9662 |
+| 9722 |
++------+
+8 rows in set (0.03 sec)
+
+16. Find the aids of all aircraft that can be used on non-stop flights from Kolkata to Madras.
+
+mysql> select a.aid from aircraft a,flights f
+    -> where a.crusingrange > f.distance
+    -> and f.origin = "Chennai"
+    -> and f.destination = "Delhi";
++------+
+| aid  |
++------+
+| 3001 |
+| 3801 |
+| 3802 |
+| 7571 |
++------+
+4 rows in set (0.00 sec)
+
+17. Identify the flights that can be piloted by every pilot whose salary is more than $100,000.
+
+mysql> select distinct a.aid from
+    -> aircraft a
+    -> where a.aid in
+    -> (select a1.aid from
+    -> employee e,certified c,aircraft a1
+    -> where e.eid = c.eid
+    -> and a1.aid = c.aid 
+    -> and e.salary > 150000);
++------+
+| aid  |
++------+
+| 7772 |
+| 2001 |
+| 3001 |
+| 3801 |
+| 3802 |
+| 7771 |
+| 7571 |
++------+
+7 rows in set (0.03 sec)
+
+18. Find the names of pilots who can operate planes with a range greater than 5,000 miles but are not certified on any Boeing aircraft.
+
+
+mysql> select e.ename 
+    -> from employee e,aircraft a,certified c
+    -> where a.aid=c.aid
+    -> and c.eid = e.eid
+    -> and a.crusingrange > 5000
+    -> and a.aname not like "%Boeing%";
++------------------+
+| ename            |
++------------------+
+| "Rashi Khan"     |
+| "Praveen Halaal" |
+| "Rashi Khan"     |
+| "Amit Agarwal"   |
+| "Kaajol Kumari"  |
+| "Amit Agarwal"   |
++------------------+
+6 rows in set (0.00 sec)
+
+19. Find the eids of employees who make the highest salary in every airlines.
+     
+mysql> select e.eid,a.aname from aircraft a,certified c,employee e
+    -> where e.eid=c.eid and c.aid=a.aid and 
+    -> e.salary = (select max(e1.salary) from employee e1,aircraft a1,certified c1 
+    -> where c1.eid=e1.eid and a1.aid=c1.aid and a1.aname=a.aname );
++------+--------------+
+| eid  | aname        |
++------+--------------+
+| 9128 | "Bombardier" |
+| 9335 | "Airbus"     |
+| 9128 | "Boeing"     |
++------+--------------+
+3 rows in set (0.00 sec)
+
+20. Find the eids of employees who make the second highest salary.
+
+mysql> select e1.ename,e1.eid from employee e1 
+    -> where e1.salary=(select max(e2.salary) from employee e2 where e2.salary!=(select max(e3.salary) from employee e3));
++------------------+------+
+| ename            | eid  |
++------------------+------+
+| "Praveen Halaal" | 9335 |
++------------------+------+
+1 row in set (0.00 sec)
+
+21. Find the eids of employees who are certified for the largest number of aircraft.
+
+mysql> select  e.eid,count(a.aid) from employee e,certified c,aircraft a where a.aid=c.aid and c.eid=e.eid   group by e.eid having count(a.aid)=(select max(id.num)  from (select count(c.aid) as num from certified c,employee e,aircraft a where e.eid=c.eid and c.aid=a.aid group by e.eid) id );
++------+--------------+
+| eid  | count(a.aid) |
++------+--------------+
+| 9443 |            3 |
+| 9927 |            3 |
++------+--------------+
+2 rows in set (0.00 sec)
+
+22. Find the eids of employees who are certified for exactly three aircrafts.
+
+mysql> select  e.eid,count(a.aid) from employee e,certified c,aircraft a where a.aid=c.aid and c.eid=e.eid   group by e.eid having count(a.aid)=3;
++------+--------------+
+| eid  | count(a.aid) |
++------+--------------+
+| 9443 |            3 |
+| 9927 |            3 |
++------+--------------+
+2 rows in set (0.00 sec)
+

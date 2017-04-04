@@ -1,0 +1,69 @@
+Assignments Submissions Database
+
+Tables:
+	1.Assignment
+	2.Student
+	3.Teacher
+	4.Course
+	5.Grading
+	6.SubmissionsLog
+	7.Passwords
+	8.StudentTimeline
+
+
+FD
+
+Teacher: 
+	TID->Name
+	TID->Dept
+	TID->Email
+	TID->DOJ
+	TID->DOT
+
+Course:
+	CID->Cname
+	CID->Dept
+	CID->TotalCredits
+
+Student:
+	SID->Name
+	SID->DOB
+	SID->DOJ
+	SID->DOPO
+	SID->Email
+	SID->Batch
+
+User:
+	ID->Password
+	ID->DOC
+
+Assignment:
+	AID->Aname
+	AID->TID
+	AID->Batch
+	AID->Credits
+	AID->CDT
+	AID->DDT
+	AID->CID
+
+Submissions:
+	SID,AID->DTS
+
+Grading:
+	SID,AID->CreditsObtained
+	SID,AID->PlagrismMeasure
+
+StudentTimeline:
+	SID,AID->SubStatus
+	SID,AID->RevStatus
+
+
+Minimal Cover
+
+
+
+
+
+
+
+

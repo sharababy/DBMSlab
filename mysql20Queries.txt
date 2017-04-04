@@ -1,0 +1,296 @@
+➜  ~ mysql -p -u root
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 5
+Server version: 5.7.17 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use company;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SELECT Dname,COUNT(*) FROM department d,employee e WHERE d.dno=e.dno GROUP BY e.dno HAVING AVG(e.salary)>30000;
++----------------+----------+
+| Dname          | COUNT(*) |
++----------------+----------+
+| Administration |        3 |
++----------------+----------+
+1 row in set (0.04 sec)
+
+mysql> SELECT Dname,COUNT(*) FROM Department d,Employee e WHERE Dno=Dno AND salary>30000 AND e.sex='M' GROUP BY d.dno;
+ERROR 1052 (23000): Column 'Dno' in where clause is ambiguous
+mysql> SELECT Dname,COUNT(*) FROM department d,employee e WHERE dno=dno AND salary>30000 AND e.sex='M' GROUP BY d.dno;
+ERROR 1052 (23000): Column 'dno' in where clause is ambiguous
+mysql> SELECT Dname,COUNT(*) FROM department d,employee e WHERE d.dno=e.dno AND salary>30000 AND e.sex='M' GROUP BY d.dno;
++-------------------+----------+
+| Dname             | COUNT(*) |
++-------------------+----------+
+| Research & Dev.   |        1 |
+| Human Resources   |        1 |
+| Administration    |        3 |
+| Marketing & Sales |        1 |
++-------------------+----------+
+4 rows in set (0.04 sec)
+
+mysql> SELECT Dname,COUNT(*) FROM Department d,Employee e WHERE d.Dno=e.Dno AND e.sex='M' GROUP BY d.Dno HAVING AVG(e.salary)>30000;
++-------------------+----------+
+| Dname             | COUNT(*) |
++-------------------+----------+
+| Research & Dev.   |        2 |
+| Administration    |        3 |
+| Marketing & Sales |        1 |
++-------------------+----------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT Fname,Lname FROM Employee WHERE Dno=(SELECT Dno FROM Employee WHERE Salary=(SELECT MAX(Salary) FROM Employee)); 
+ERROR 1054 (42S22): Unknown column 'Fname' in 'field list'
+mysql> SELECT name FROM Employee WHERE Dno=(SELECT Dno FROM Employee WHERE Salary=(SELECT MAX(salary) FROM employee)); 
++--------------+
+| name         |
++--------------+
+| Chomu Ji     |
+| Kaka Ji      |
+| Tanmay Bhatt |
++--------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Salary>=((SELECT MIN(Salary) FROM Employee)+10000);
++--------------+
+| name         |
++--------------+
+| Babu Rao     |
+| Chomu Ji     |
+| Rakesh Rohan |
+| Gulab Singh  |
+| Jai Ganesh   |
+| Kaka Ji      |
+| Faluda Dam   |
+| Tanmay Bhatt |
+| Halaal Ram   |
++--------------+
+9 rows in set (0.00 sec)
+
+mysql> show tables
+    -> ;
++-------------------+
+| Tables_in_company |
++-------------------+
+| department        |
+| dependent         |
+| employee          |
+| location          |
+| project           |
+| works_on          |
++-------------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from project;
++---------+-------------+-----------+------+
+| pNumber | projectName | plocation | dno  |
++---------+-------------+-----------+------+
+|    1011 | Project 1   | Chennai   |  101 |
+|    1012 | Project 2   | Chennai   |  101 |
+|    1021 | Project 1   | Chennai   |  102 |
+|    1022 | Project 2   | Chennai   |  102 |
+|    2011 | Project 1   | Bombay    |  201 |
+|    2012 | Project 2   | Bombay    |  201 |
+|    2013 | Project 3   | Bombay    |  201 |
++---------+-------------+-----------+------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT Fname,Lname FROM Employee WHERE Dno=5 AND Ssn IN (SELECT Essn FROM Works_On WHERE Hours>10 AND Pno=(SELECT Pnumber FROM Project WHERE Pname='ProductX'));
+ERROR 1054 (42S22): Unknown column 'Fname' in 'field list'
+mysql> select * from works_on;
++-------+---------+-------+
+| ssn   | pNumber | hours |
++-------+---------+-------+
+| 23132 |    1021 |    20 |
+| 34223 |    1011 |    15 |
+| 34532 |    2011 |    36 |
+| 39731 |    1012 |    10 |
+| 54241 |    1022 |    30 |
+| 64323 |    2012 |    12 |
+| 98271 |    2011 |    10 |
++-------+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Dno=5 AND Ssn IN (SELECT ssn FROM Works_On WHERE Hours>10 AND pNumber=(SELECT pNumber FROM Project WHERE projectName='ProductX'));
+Empty set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Dno=5 AND Ssn IN (SELECT ssn FROM Works_On WHERE Hours>10 AND pNumber=(SELECT pNumber FROM Project WHERE projectName='Product 1'));
+Empty set (0.01 sec)
+
+mysql> SELECT e.name FROM Employee e WHERE EXISTS (SELECT Dependent_name FROM Dependent d WHERE Dependent_name LIKE CONCAT('%',name) AND e.Ssn=d.ssn);
+ERROR 1054 (42S22): Unknown column 'Dependent_name' in 'field list'
+mysql> desc dependent;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| ssn           | int(11)     | YES  | MUL | NULL    |       |
+| dependentName | varchar(50) | YES  |     | NULL    |       |
+| sex           | char(1)     | YES  |     | NULL    |       |
+| bdate         | date        | YES  |     | NULL    |       |
+| relationship  | varchar(20) | YES  |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT e.name FROM Employee e WHERE EXISTS (SELECT dependentName FROM Dependent d WHERE dependentName LIKE CONCAT('%',e.name) AND e.Ssn=d.ssn);
+Empty set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE superssn=(SELECT Ssn FROM Employee WHERE name='Babu Rao');
++--------------+
+| name         |
++--------------+
+| Mahaam Singh |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Ssn IN (SELECT ssn FROM Works_On WHERE pNumber IN (SELECT projectNumber FROM Project WHERE Dno=101));
+ERROR 1054 (42S22): Unknown column 'projectNumber' in 'field list'
+mysql> SELECT name FROM Employee WHERE Ssn IN (SELECT ssn FROM Works_On WHERE pNumber IN (SELECT pNumber FROM Project WHERE Dno=101));
++-------------+
+| name        |
++-------------+
+| Sonam Gupta |
+| Gulab Singh |
++-------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT projectName,SUM(Hours) FROM Project p,Works_On w WHERE p.Pnumber=w.Pnumber GROUP BY projectName;
++-------------+------------+
+| projectName | SUM(Hours) |
++-------------+------------+
+| Project 1   |         81 |
+| Project 2   |         52 |
++-------------+------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT e.name FROM Employee e WHERE NOT EXISTS ( SELECT Pnumber FROM Project p WHERE NOT EXISTS ( SELECT * FROM Works_On w WHERE p.Pnumber=w.Pnumber AND e.ssn=w.Ssn));
+Empty set (0.00 sec)
+
+mysql>  SELECT name FROM Employee e WHERE NOT EXISTS (SELECT * FROM Works_On w WHERE w.ssn=e.Ssn);
++--------------+
+| name         |
++--------------+
+| Chomu Ji     |
+| Jai Ganesh   |
+| Kaka Ji      |
+| Tanmay Bhatt |
++--------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT AVG(Salary) FROM Employee WHERE Ssn IN (SELECT e.Ssn FROM Employee e WHERE e.Sex='F');
++-------------+
+| AVG(Salary) |
++-------------+
+|  21666.6667 |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT Fname,Lname,Address FROM Employee WHERE Ssn IN (SELECT Essn FROM Works_On WHERE Pno IN (SELECT Pnumber FROM Promysql> SELECT Fname,Lname FROM Employee WHERE EXISTS (SELECT Mgr_ssn FROM Department WHERE Ssn=Mgr_ssn) AND NOT EXISTS (SELECT * FROM Dependent WHERE Essn=Ssn);
+ERROR 1054 (42S22): Unknown column 'Fname' in 'field list'
+mysql> SELECT name FROM Employee WHERE EXISTS (SELECT Mgrssn FROM Department WHERE Ssn=Mgrssn) AND NOT EXISTS (SELECT * FROM Dependent d WHERE d.ssn=e.ssn);
+ERROR 1054 (42S22): Unknown column 'e.ssn' in 'where clause'
+mysql> SELECT name FROM Employee e WHERE EXISTS (SELECT Mgrssn FROM Department WHERE Ssn=Mgrssn) AND NOT EXISTS (SELECT * FROM Dependent d WHERE d.ssn=e.ssn);
++--------------+
+| name         |
++--------------+
+| Babu Rao     |
+| Tanmay Bhatt |
++--------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Superssn IN (SELECT Ssn FROM Employee WHERE Superssn IN (SELECT Ssn FROM Employee WHERE name='Bhatt'));
+Empty set (0.01 sec)
+
+mysql> select * from employee;
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+| Chomu Ji     |   33 | 31627 | M    |  45000 |    98221 |  105 | 237889237  | 1996-01-02 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Kaka Ji      |   33 | 46627 | M    |  40000 |    98221 |  105 | 237889237  | 1996-01-02 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Tanmay Bhatt |   31 | 98221 | M    |  35000 |     NULL |  105 | 3897481231 | 1998-02-02 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+11 rows in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Superssn IN (SELECT Ssn FROM Employee WHERE Superssn IN (SELECT Ssn FROM Employee WHERE name='Babu Rao'));
+Empty set (0.00 sec)
+
+mysql> SELECT name FROM Employee e WHERE Ssn IN (SELECT e.ssn FROM Works_On WHERE Pnumber IN(SELECT Pnumber FROM Project p WHERE p.Dno=101));
++--------------+
+| name         |
++--------------+
+| Babu Rao     |
+| Chomu Ji     |
+| Sonam Gupta  |
+| Rakesh Rohan |
+| Gulab Singh  |
+| Jai Ganesh   |
+| Kaka Ji      |
+| Mahaam Singh |
+| Faluda Dam   |
+| Tanmay Bhatt |
+| Halaal Ram   |
++--------------+
+11 rows in set (0.00 sec)
+
+mysql>  SELECT Fname,Lname FROM Employee A WHERE A.Ssn IN (SELECT DISTINCT Superssn FROM Employee WHERE Superssn IN (SELECT Mgrssn FROM Department d WHERE (SELECT COUNT(*) FROM Project p WHERE p.Dno=d.Dno)>=2)) ORDER BY (SELECT COUNT(*) FROM Employee 
+ERROR 1054 (42S22): Unknown column 'Fname' in 'field list'
+mysql>  SELECT name FROM Employee A WHERE A.Ssn IN (SELECT DISTINCT Superssn FROM Employee WHERE Superssn IN (SELECT Mgrssn FROM Department d WHERE (SELECT COUNT(*) FROM Project p WHERE p.Dno=d.Dno)>=2)) ORDER BY (SELECT COUNT(*) FROM Employee E WHERE
++-------------+
+| name        |
++-------------+
+| Babu Rao    |
+| Sonam Gupta |
+| Faluda Dam  |
++-------------+
+3 rows in set (0.00 sec)
+
+mysql>  SELECTname,dependentName FROM Employee e,Dependent d WHERE e.ssn=d.Ssn AND e.Ssn IN (SELECT Ssn FROM Employee E WHERE 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELECTname,dependentName FROM Employee e,Dependent d WHERE e.ssn=d.Ssn AND e.Ssn' at line 1
+mysql>  SELECT name,dependentName FROM Employee e,Dependent d WHERE e.ssn=d.Ssn AND e.Ssn IN (SELECT Ssn FROM Employee E WHERE E.Sex='F');
++-------------+---------------+
+| name        | dependentName |
++-------------+---------------+
+| Sonam Gupta | Malati Mayo   |
++-------------+---------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT name FROM Employee A WHERE Salary>(SELECT Salary FROM Employee WHERE Ssn IN (SELECT Mgrssn FROM Department d WHERE A.Dno=d.Dno));
++-------------+
+| name        |
++-------------+
+| Chomu Ji    |
+| Gulab Singh |
+| Jai Ganesh  |
+| Kaka Ji     |
++-------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT name FROM Employee WHERE Dno=(SELECT Dno FROM Department WHERE Dname='Administration') OR Ssn IN (SELECT Superssn FROM Employee WHERE Ssn IN (SELECT Ssn FROM Employee e WHERE e.Dno=(SELECT Dno FROM Department WHERE Dname='Administration')));
++--------------+
+| name         |
++--------------+
+| Chomu Ji     |
+| Kaka Ji      |
+| Tanmay Bhatt |
++--------------+
+3 rows in set (0.00 sec)
+
+mysql> 

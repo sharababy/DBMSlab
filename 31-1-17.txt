@@ -1,0 +1,877 @@
+mysql> select * from employee;
+ERROR 1046 (3D000): No database selected
+mysql> use company;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select * from employee;
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+8 rows in set (0.00 sec)
+
+mysql> select * from department;
++-------------------+-----+--------+
+| dname             | dno | mgrssn |
++-------------------+-----+--------+
+| Research & Dev.   | 101 |  34223 |
+| Human Resources   | 102 |  23132 |
+| Marketing & Sales | 201 |  64323 |
++-------------------+-----+--------+
+3 rows in set (0.00 sec)
+
+mysql> select * from 
+    -> ee
+    -> ;
+ERROR 1146 (42S02): Table 'company.ee' doesn't exist
+mysql> select employee.name , department.dno
+    -> from employee , department
+    -> where dname like "Reasearch%"
+    -> and department.dno = employee.dno;
+Empty set (0.01 sec)
+
+mysql> select employee.name , department.dno from employee , department where dname like "Research%" and department.dno = employee.dno;
++-------------+-----+
+| name        | dno |
++-------------+-----+
+| Sonam Gupta | 101 |
+| Gulab Singh | 101 |
+| Jai Ganesh  | 101 |
++-------------+-----+
+3 rows in set (0.00 sec)
+
+mysql> select * from project;
++---------+-------------+-----------+------+
+| pNumber | projectName | plocation | dno  |
++---------+-------------+-----------+------+
+|    1011 | Project 1   | Chennai   |  101 |
+|    1012 | Project 2   | Chennai   |  101 |
+|    1021 | Project 1   | Chennai   |  102 |
+|    1022 | Project 2   | Chennai   |  102 |
+|    2011 | Project 1   | Bombay    |  201 |
+|    2012 | Project 2   | Bombay    |  201 |
+|    2013 | Project 3   | Bombay    |  201 |
++---------+-------------+-----------+------+
+7 rows in set (0.00 sec)
+
+mysql> select emp.name , pro.projectName , emp.age
+    -> from employee emp,project pro,department
+    -> where pro.projectName like "Re%"
+    -> and ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 4
+mysql> select emp.name , pro.projectName , emp.age from employee emp,project pro,department where pro.plocation like "Bombay%" and
+    -> emp.ssn = department.mgrssn
+    -> and emp.dno = department.dno;
++-------------+-------------+------+
+| name        | projectName | age  |
++-------------+-------------+------+
+| Babu Rao    | Project 1   |   26 |
+| Sonam Gupta | Project 1   |   32 |
+| Faluda Dam  | Project 1   |   33 |
+| Babu Rao    | Project 2   |   26 |
+| Sonam Gupta | Project 2   |   32 |
+| Faluda Dam  | Project 2   |   33 |
+| Babu Rao    | Project 3   |   26 |
+| Sonam Gupta | Project 3   |   32 |
+| Faluda Dam  | Project 3   |   33 |
++-------------+-------------+------+
+9 rows in set (0.04 sec)
+
+mysql> select emp.name , pro.projectName , emp.age from employee emp,project pro,department where pro.plocation like "Bombay%" and emp.ssn = department.mgrssn and emp.dno = project.dno;
+ERROR 1054 (42S22): Unknown column 'project.dno' in 'where clause'
+mysql> select emp.name , pro.projectName , emp.age from employee emp,project pro,department where pro.plocation like "Bombay%" and emp.ssn = department.mgrssn and emp.dno = pro.dno;
++------------+-------------+------+
+| name       | projectName | age  |
++------------+-------------+------+
+| Faluda Dam | Project 1   |   33 |
+| Faluda Dam | Project 2   |   33 |
+| Faluda Dam | Project 3   |   33 |
++------------+-------------+------+
+3 rows in set (0.00 sec)
+
+mysql> select emp.name , pro.projectName , emp.age from employee emp,project pro,department where emp.ssn = department.mgrssn and emp.dno = pro.dno;
++-------------+-------------+------+
+| name        | projectName | age  |
++-------------+-------------+------+
+| Sonam Gupta | Project 1   |   32 |
+| Sonam Gupta | Project 2   |   32 |
+| Babu Rao    | Project 1   |   26 |
+| Babu Rao    | Project 2   |   26 |
+| Faluda Dam  | Project 1   |   33 |
+| Faluda Dam  | Project 2   |   33 |
+| Faluda Dam  | Project 3   |   33 |
++-------------+-------------+------+
+7 rows in set (0.00 sec)
+
+mysql> select ssn from employee;
++-------+
+| ssn   |
++-------+
+| 23132 |
+| 34223 |
+| 64323 |
+| 54241 |
+| 39731 |
+| 43231 |
+| 34532 |
+| 98271 |
++-------+
+8 rows in set (0.00 sec)
+
+mysql> select ssn,name from employee;
++-------+--------------+
+| ssn   | name         |
++-------+--------------+
+| 23132 | Babu Rao     |
+| 34223 | Sonam Gupta  |
+| 34532 | Rakesh Rohan |
+| 39731 | Gulab Singh  |
+| 43231 | Jai Ganesh   |
+| 54241 | Mahaam Singh |
+| 64323 | Faluda Dam   |
+| 98271 | Halaal Ram   |
++-------+--------------+
+8 rows in set (0.00 sec)
+
+mysql> select ssn,dname
+    -> from employee , department;
++-------+-------------------+
+| ssn   | dname             |
++-------+-------------------+
+| 23132 | Research & Dev.   |
+| 23132 | Human Resources   |
+| 23132 | Marketing & Sales |
+| 34223 | Research & Dev.   |
+| 34223 | Human Resources   |
+| 34223 | Marketing & Sales |
+| 64323 | Research & Dev.   |
+| 64323 | Human Resources   |
+| 64323 | Marketing & Sales |
+| 54241 | Research & Dev.   |
+| 54241 | Human Resources   |
+| 54241 | Marketing & Sales |
+| 39731 | Research & Dev.   |
+| 39731 | Human Resources   |
+| 39731 | Marketing & Sales |
+| 43231 | Research & Dev.   |
+| 43231 | Human Resources   |
+| 43231 | Marketing & Sales |
+| 34532 | Research & Dev.   |
+| 34532 | Human Resources   |
+| 34532 | Marketing & Sales |
+| 98271 | Research & Dev.   |
+| 98271 | Human Resources   |
+| 98271 | Marketing & Sales |
++-------+-------------------+
+24 rows in set (0.00 sec)
+
+mysql> select * from employee,department;
++--------------+------+-------+------+--------+----------+------+------------+------------+-------------------+-----+--------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      | dname             | dno | mgrssn |
++--------------+------+-------+------+--------+----------+------+------------+------------+-------------------+-----+--------+
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 | Research & Dev.   | 101 |  34223 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 | Human Resources   | 102 |  23132 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 | Marketing & Sales | 201 |  64323 |
++--------------+------+-------+------+--------+----------+------+------------+------------+-------------------+-----+--------+
+24 rows in set (0.00 sec)
+
+mysql> select all salary from employee;
++--------+
+| salary |
++--------+
+|  40000 |
+|  13000 |
+|  27000 |
+|  26000 |
+|  39000 |
+|  10000 |
+|  37000 |
+|  25000 |
++--------+
+8 rows in set (0.04 sec)
+
+mysql> select distinct salary from employee;
++--------+
+| salary |
++--------+
+|  40000 |
+|  13000 |
+|  27000 |
+|  26000 |
+|  39000 |
+|  10000 |
+|  37000 |
+|  25000 |
++--------+
+8 rows in set (0.01 sec)
+
+mysql> select distinct dno from employee;
++------+
+| dno  |
++------+
+|  102 |
+|  101 |
+|  201 |
++------+
+3 rows in set (0.00 sec)
+
+mysql> select distinct dno,name from employee;
++------+--------------+
+| dno  | name         |
++------+--------------+
+|  102 | Babu Rao     |
+|  101 | Sonam Gupta  |
+|  201 | Rakesh Rohan |
+|  101 | Gulab Singh  |
+|  101 | Jai Ganesh   |
+|  102 | Mahaam Singh |
+|  201 | Faluda Dam   |
+|  201 | Halaal Ram   |
++------+--------------+
+8 rows in set (0.00 sec)
+
+mysql> select all dno from employee;
++------+
+| dno  |
++------+
+|  102 |
+|  101 |
+|  201 |
+|  101 |
+|  101 |
+|  102 |
+|  201 |
+|  201 |
++------+
+8 rows in set (0.00 sec)
+
+mysql> select distinct dno from employee;
++------+
+| dno  |
++------+
+|  102 |
+|  101 |
+|  201 |
++------+
+3 rows in set (0.00 sec)
+
+mysql> select * from project pro,employee emp ;
++---------+-------------+-----------+------+--------------+------+-------+------+--------+----------+------+------------+------------+
+| pNumber | projectName | plocation | dno  | name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++---------+-------------+-----------+------+--------------+------+-------+------+--------+----------+------+------------+------------+
+|    1011 | Project 1   | Chennai   |  101 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+|    1011 | Project 1   | Chennai   |  101 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1012 | Project 2   | Chennai   |  101 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1021 | Project 1   | Chennai   |  102 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    1022 | Project 2   | Chennai   |  102 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2011 | Project 1   | Bombay    |  201 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2012 | Project 2   | Bombay    |  201 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+|    2013 | Project 3   | Bombay    |  201 | Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++---------+-------------+-----------+------+--------------+------+-------+------+--------+----------+------+------------+------------+
+56 rows in set (0.00 sec)
+
+mysql> select pro.pNumber ,pro.projectname from project pro,employee emp
+    -> where pro.dno = emp.dno, and emp.name = "%Singh%"
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' and emp.name = "%Singh%"' at line 2
+mysql> select pro.pNumber ,pro.projectname from project pro,employee emp where pro.dno = emp.dno, and emp.name = "%Singh";
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' and emp.name = "%Singh"' at line 1
+mysql> select pro.pNumber ,pro.projectname from project pro,employee emp where pro.dno = emp.dno and emp.name like "%Singh%";
++---------+-------------+
+| pNumber | projectname |
++---------+-------------+
+|    1011 | Project 1   |
+|    1012 | Project 2   |
+|    1021 | Project 1   |
+|    1022 | Project 2   |
++---------+-------------+
+4 rows in set (0.00 sec)
+
+mysql> select pro.pNumber ,pro.projectname,emp.name from project pro,employee emp where pro.dno = emp.dno and emp.name like "%Singh%";
++---------+-------------+--------------+
+| pNumber | projectname | name         |
++---------+-------------+--------------+
+|    1011 | Project 1   | Gulab Singh  |
+|    1012 | Project 2   | Gulab Singh  |
+|    1021 | Project 1   | Mahaam Singh |
+|    1022 | Project 2   | Mahaam Singh |
++---------+-------------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from employee where name like "%am%;
+    "> ;;
+    "> "
+    -> ;
+Empty set (0.00 sec)
+
+mysql> select * from employee where name like "%am%";
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from employee where name like "%am";
++------------+------+-------+------+--------+----------+------+------------+------------+
+| name       | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++------------+------+-------+------+--------+----------+------+------------+------------+
+| Faluda Dam |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Halaal Ram |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++------------+------+-------+------+--------+----------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from employee where name like "__l%";
++-------------+------+-------+------+--------+----------+------+------------+------------+
+| name        | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++-------------+------+-------+------+--------+----------+------+------------+------------+
+| Gulab Singh |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Faluda Dam  |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Halaal Ram  |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++-------------+------+-------+------+--------+----------+------+------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from employee where name like "__la%";
++-------------+------+-------+------+--------+----------+------+------------+------------+
+| name        | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++-------------+------+-------+------+--------+----------+------+------------+------------+
+| Gulab Singh |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Halaal Ram  |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++-------------+------+-------+------+--------+----------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+mysql> select emp.salary*(1.1)
+    -> from employee emp,project pro
+    -> where emp.dno = pro.dno and
+    -> pro.projectName = "Project 1"
+    -> and pro.dno = 101;
++------------------+
+| emp.salary*(1.1) |
++------------------+
+|          14300.0 |
+|          28600.0 |
+|          42900.0 |
++------------------+
+3 rows in set (0.00 sec)
+
+mysql> select emp.name,emp.salary*(1.1) from employee emp,project pro where emp.dno = pro.dno and pro.projectName = "Project 1" and pro.dno = 101;
++-------------+------------------+
+| name        | emp.salary*(1.1) |
++-------------+------------------+
+| Sonam Gupta |          14300.0 |
+| Gulab Singh |          28600.0 |
+| Jai Ganesh  |          42900.0 |
++-------------+------------------+
+3 rows in set (0.00 sec)
+
+mysql> select emp.name,emp.salary,emp.salary*(1.1) from employee emp,project pro where emp.dno = pro.dno and pro.projectName = "Project 1" and pro.dno = 101;
++-------------+--------+------------------+
+| name        | salary | emp.salary*(1.1) |
++-------------+--------+------------------+
+| Sonam Gupta |  13000 |          14300.0 |
+| Gulab Singh |  26000 |          28600.0 |
+| Jai Ganesh  |  39000 |          42900.0 |
++-------------+--------+------------------+
+3 rows in set (0.00 sec)
+
+mysql> select mgr.name,emp.ssn,emp.name
+    -> from employee emp,employee mgr
+    -> where emp.mgrssn = mgr.ssn;
+ERROR 1054 (42S22): Unknown column 'emp.mgrssn' in 'where clause'
+mysql> select mgr.name,emp.ssn,emp.name from employee emp,employee mgr where emp.superssn = mgr.ssn;
++-------------+-------+--------------+
+| name        | ssn   | name         |
++-------------+-------+--------------+
+| Faluda Dam  | 34532 | Rakesh Rohan |
+| Sonam Gupta | 39731 | Gulab Singh  |
+| Sonam Gupta | 43231 | Jai Ganesh   |
+| Babu Rao    | 54241 | Mahaam Singh |
+| Faluda Dam  | 98271 | Halaal Ram   |
++-------------+-------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from employee 
+    -> where (salary between 15000 and 20000);
+Empty set (0.04 sec)
+
+mysql> select * from employee  where (salary between 10000 and 20000);
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from employee  where (salary between 10000 and 25000);
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from employee  where (salary between 10000 and 28000);
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from employee  where (salary between 10000 and 26000);
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> select name,salary from employee order by salary,name;
++--------------+--------+
+| name         | salary |
++--------------+--------+
+| Mahaam Singh |  10000 |
+| Sonam Gupta  |  13000 |
+| Halaal Ram   |  25000 |
+| Gulab Singh  |  26000 |
+| Rakesh Rohan |  27000 |
+| Faluda Dam   |  37000 |
+| Jai Ganesh   |  39000 |
+| Babu Rao     |  40000 |
++--------------+--------+
+8 rows in set (0.01 sec)
+
+mysql> select name,salary from employee order by salary dsc,name;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'dsc,name' at line 1
+mysql> select name,salary from employee order by salary desc,name;
++--------------+--------+
+| name         | salary |
++--------------+--------+
+| Babu Rao     |  40000 |
+| Jai Ganesh   |  39000 |
+| Faluda Dam   |  37000 |
+| Rakesh Rohan |  27000 |
+| Gulab Singh  |  26000 |
+| Halaal Ram   |  25000 |
+| Sonam Gupta  |  13000 |
+| Mahaam Singh |  10000 |
++--------------+--------+
+8 rows in set (0.00 sec)
+
+mysql> select name,salary from employee order by name,salary desc;
++--------------+--------+
+| name         | salary |
++--------------+--------+
+| Babu Rao     |  40000 |
+| Faluda Dam   |  37000 |
+| Gulab Singh  |  26000 |
+| Halaal Ram   |  25000 |
+| Jai Ganesh   |  39000 |
+| Mahaam Singh |  10000 |
+| Rakesh Rohan |  27000 |
+| Sonam Gupta  |  13000 |
++--------------+--------+
+8 rows in set (0.00 sec)
+
+mysql> select * from department;
++-------------------+-----+--------+
+| dname             | dno | mgrssn |
++-------------------+-----+--------+
+| Research & Dev.   | 101 |  34223 |
+| Human Resources   | 102 |  23132 |
+| Marketing & Sales | 201 |  64323 |
++-------------------+-----+--------+
+3 rows in set (0.00 sec)
+
+mysql> insert into department values("Administration",105,NULL);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select *from emplyee;
+ERROR 1146 (42S02): Table 'company.emplyee' doesn't exist
+mysql> select *from employee;
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |
+| Gulab Singh  |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Halaal Ram   |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+8 rows in set (0.00 sec)
+
+mysql> insert into employee values("Tanmay Bhatt",31,98221,M,35000,NULL,105,3897481231,1998-2-2);
+ERROR 1054 (42S22): Unknown column 'M' in 'field list'
+mysql> insert into employee values("Tanmay Bhatt",31,98221,"M",35000,NULL,105,3897481231,1998-2-2);
+ERROR 1292 (22007): Incorrect date value: '1994' for column 'bdate' at row 1
+mysql> insert into employee values("Tanmay Bhatt",31,98221,"M",35000,NULL,105,3897481231,"1998-2-2");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> update department
+    -> set mgrssn = 98221
+    -> where dno=105;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from department;
++-------------------+-----+--------+
+| dname             | dno | mgrssn |
++-------------------+-----+--------+
+| Research & Dev.   | 101 |  34223 |
+| Human Resources   | 102 |  23132 |
+| Administration    | 105 |  98221 |
+| Marketing & Sales | 201 |  64323 |
++-------------------+-----+--------+
+4 rows in set (0.00 sec)
+
+mysql> select * from employee where superssn is NULL;
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+| Babu Rao     |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |
+| Sonam Gupta  |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |
+| Faluda Dam   |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |
+| Tanmay Bhatt |   31 | 98221 | M    |  35000 |     NULL |  105 | 3897481231 | 1998-02-02 |
++--------------+------+-------+------+--------+----------+------+------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> select pNumber from project pro,employee emp
+    -> where pNumber in
+    -> ; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 2
+mysql> select emp.name from employee emp
+    -> where salary>all (select * from employee where dno = 101);
+ERROR 1241 (21000): Operand should contain 1 column(s)
+mysql> select name from employee where salary>all (select salary from employee where dno = 101);
++----------+
+| name     |
++----------+
+| Babu Rao |
++----------+
+1 row in set (0.04 sec)
+
+mysql> select name from employee where salary>all (select salary from employee where dno = 102);
+Empty set (0.00 sec)
+
+mysql> select name from employee where salary>all (select salary from employee where dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.00 sec)
+
+mysql> select name from employee where salary > all (select salary from employee where dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.00 sec)
+
+mysql> select name from employee where salary > all (select salary from employee e where e.dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.00 sec)
+
+mysql> select b.name from employee b where b.salary > all (select salary from employee e where e.dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.00 sec)
+
+mysql> select b.name from employee b where b.salary > all(select salary from employee e where e.dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.01 sec)
+
+mysql> select name from employee where salary > all (select salary from employee where dno = 201);
++------------+
+| name       |
++------------+
+| Babu Rao   |
+| Jai Ganesh |
++------------+
+2 rows in set (0.00 sec)
+
+mysql> select name from employee where salary > all (select salary from employee where dno = 101);
++----------+
+| name     |
++----------+
+| Babu Rao |
++----------+
+1 row in set (0.00 sec)
+
+mysql> select name from employee where salary > all (select salary from employee where dno = 102);
+Empty set (0.00 sec)
+
+mysql> select name from employee where salary > (select salary from employee where dno = 102);
+ERROR 1242 (21000): Subquery returns more than 1 row
+mysql> SELECT FROM
+    -> WHERE
+    -> E.Fname, E.Lname EMPLOYEE AS E E.Ssn IN ( SELECT
+    -> FROM WHERE
+    -> Essn
+    -> Essn;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FROM
+WHERE
+E.Fname, E.Lname EMPLOYEE AS E E.Ssn IN ( SELECT
+FROM WHERE
+Essn
+Essn' at line 1
+mysql> select * from dependent;
++-------+---------------+------+------------+--------------+
+| ssn   | dependentName | sex  | bdate      | relationship |
++-------+---------------+------+------------+--------------+
+| 34223 | Malati Mayo   | F    | 1992-02-12 | daughter     |
+| 64323 | Shuhash       | M    | 1997-05-22 | wife         |
+| 43231 | Lasoon lal    | M    | 1987-06-02 | son          |
+| 43231 | Major Lazer   | F    | 1994-12-04 | Father       |
+| 54241 | Saraswati     | F    | 1988-10-20 | Mother       |
++-------+---------------+------+------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> select e.name from 
+    -> employee e
+    -> where ssn in
+    -> (select ssn from dependent
+    -> where e.sex = dependent.sex);
++-------------+
+| name        |
++-------------+
+| Sonam Gupta |
+| Faluda Dam  |
+| Jai Ganesh  |
++-------------+
+3 rows in set (0.00 sec)
+
+mysql> select e.name from  employee e where ssn exists (select ssn from dependent where e.sex = dependent.sex);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'exists (select ssn from dependent where e.sex = dependent.sex)' at line 1
+mysql> select e.name from  employee e where ssn exists (select * from dependent where e.sex = dependent.sex);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'exists (select * from dependent where e.sex = dependent.sex)' at line 1
+mysql> select e.name from  employee e where exists (select * from dependent where e.sex = dependent.sex);
++--------------+
+| name         |
++--------------+
+| Babu Rao     |
+| Sonam Gupta  |
+| Rakesh Rohan |
+| Gulab Singh  |
+| Jai Ganesh   |
+| Mahaam Singh |
+| Faluda Dam   |
+| Tanmay Bhatt |
+| Halaal Ram   |
++--------------+
+9 rows in set (0.00 sec)
+
+mysql> select e.name from  employee e where exists (select * from dependent where e.sex = dependent.sex and e.ssn=department.ssn);
+ERROR 1054 (42S22): Unknown column 'department.ssn' in 'where clause'
+mysql> select e.name from  employee e where exists (select * from dependent where e.sex = dependent.sex and e.ssn=dependent.ssn);
++-------------+
+| name        |
++-------------+
+| Sonam Gupta |
+| Jai Ganesh  |
+| Faluda Dam  |
++-------------+
+3 rows in set (0.00 sec)
+
+mysql> select e.name from  employee e where not exists (select * from dependent where e.ssn=dependent.ssn);
++--------------+
+| name         |
++--------------+
+| Babu Rao     |
+| Rakesh Rohan |
+| Gulab Singh  |
+| Tanmay Bhatt |
+| Halaal Ram   |
++--------------+
+5 rows in set (0.00 sec)
+
+mysql> select dno,count(*),avg(salary)
+    -> from employee
+    -> group by dno;
++------+----------+-------------+
+| dno  | count(*) | avg(salary) |
++------+----------+-------------+
+|  101 |        3 |  26000.0000 |
+|  102 |        2 |  25000.0000 |
+|  105 |        1 |  35000.0000 |
+|  201 |        3 |  29666.6667 |
++------+----------+-------------+
+4 rows in set (0.04 sec)
+
+mysql> select e.name,e.dno,e.salary
+    -> from employee e
+    -> group by dno
+    -> having salary > 20000;
+ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'company.e.name' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+mysql> select e.dno,e.salary,COUNT(*) from employee e group by dno having salary > 20000;
+ERROR 1055 (42000): Expression #2 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'company.e.salary' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+mysql> select e.dno,COUNT(*) from employee e group by dno having salary > 20000;
+ERROR 1054 (42S22): Unknown column 'salary' in 'having clause'
+mysql> select e.dno,COUNT(*) from employee e group by dno having e.salary > 20000;
+ERROR 1054 (42S22): Unknown column 'e.salary' in 'having clause'
+mysql> select e.dno,COUNT(*) from employee e group by dno where salary > 20000;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'where salary > 20000' at line 1
+mysql> select e.dno,COUNT(*) from employee e where salary> 20000 group by dno;
++------+----------+
+| dno  | COUNT(*) |
++------+----------+
+|  101 |        2 |
+|  102 |        1 |
+|  105 |        1 |
+|  201 |        3 |
++------+----------+
+4 rows in set (0.00 sec)
+
+mysql> select e.dno,COUNT(*) from employee e where salary> 15000 group by dno;
++------+----------+
+| dno  | COUNT(*) |
++------+----------+
+|  101 |        2 |
+|  102 |        1 |
+|  105 |        1 |
+|  201 |        3 |
++------+----------+
+4 rows in set (0.00 sec)
+
+mysql> select e.dno,COUNT(*),avg(salary) from employee e group by dno having avg(salary)>20000;
++------+----------+-------------+
+| dno  | COUNT(*) | avg(salary) |
++------+----------+-------------+
+|  101 |        3 |  26000.0000 |
+|  102 |        2 |  25000.0000 |
+|  105 |        1 |  35000.0000 |
+|  201 |        3 |  29666.6667 |
++------+----------+-------------+
+4 rows in set (0.04 sec)
+
+mysql> select e.dno,COUNT(*),avg(salary) from employee e group by dno having avg(salary)>30000;
++------+----------+-------------+
+| dno  | COUNT(*) | avg(salary) |
++------+----------+-------------+
+|  105 |        1 |  35000.0000 |
++------+----------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select e.dno,COUNT(*),avg(salary) from employee e group by dno having avg(salary)>28000;
++------+----------+-------------+
+| dno  | COUNT(*) | avg(salary) |
++------+----------+-------------+
+|  105 |        1 |  35000.0000 |
+|  201 |        3 |  29666.6667 |
++------+----------+-------------+
+2 rows in set (0.00 sec)
+
+
+

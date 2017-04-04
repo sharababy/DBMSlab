@@ -1,0 +1,201 @@
+1. mysql>  SELECT Dname,COUNT(*) FROM Department,Employee WHERE Dno=Dnumber GROUP BY Dnumber HAVING AVG(Salary)>30000;
++----------------+----------+
+| Dname          | COUNT(*) |
++----------------+----------+
+| Headquarters   |        2 |
+| Administration |        3 |
+| Research       |        4 |
++----------------+----------+
+3 rows in set (0.00 sec)
+
+2a. mysql> SELECT Dname,COUNT(*) FROM Department,Employee WHERE Dno=Dnumber AND Salary>30000 AND Sex='M' GROUP BY Dnumber;
++--------------+----------+
+| Dname        | COUNT(*) |
++--------------+----------+
+| Headquarters |        2 |
+| Research     |        2 |
++--------------+----------+
+2 rows in set (0.00 sec)
+
+2b. mysql> SELECT Dname,COUNT(*) FROM Department,Employee WHERE Dno=Dnumber AND Sex='M' GROUP BY Dno HAVING AVG(Salary)>30000;
++--------------+----------+
+| Dname        | COUNT(*) |
++--------------+----------+
+| Headquarters |        2 |
+| Research     |        3 |
++--------------+----------+
+2 rows in set (0.00 sec)
+
+3. mysql> SELECT Fname,Lname FROM Employee WHERE Dno=(SELECT Dno FROM Employee WHERE Salary=(SELECT MAX(Salary) FROM Employee));
++--------+-------+
+| Fname  | Lname |
++--------+-------+
+| James  | Borg  |
+| Robert | Scott |
++--------+-------+
+2 rows in set (0.00 sec)
+
+4. mysql>  SELECT Fname,Lname FROM Employee WHERE Salary>=((SELECT MIN(Salary) FROM Employee)+10000);
++----------+---------+
+| Fname    | Lname   |
++----------+---------+
+| Franklin | Wong    |
+| Ramesh   | Narayan |
+| James    | Borg    |
+| Robert   | Scott   |
+| Jennifer | Wallace |
++----------+---------+
+5 rows in set (0.00 sec)
+
+5. mysql> SELECT Fname,Lname FROM Employee WHERE Dno=5 AND Ssn IN (SELECT Essn FROM Works_On WHERE Hours>10 AND Pno=(SELECT Pnumber FROM Project WHERE Pname='ProductX'));
++-------+---------+
+| Fname | Lname   |
++-------+---------+
+| John  | Smith   |
+| Joyce | English |
++-------+---------+
+2 rows in set (0.00 sec)
+
+6. mysql> SELECT Fname,Lname FROM Employee WHERE EXISTS (SELECT Dependent_name FROM Dependent WHERE Dependent_name LIKE CONCAT('%',Lname) AND Ssn=Essn);
++-------+-------+
+| Fname | Lname |
++-------+-------+
+| John  | Smith |
++-------+-------+
+1 row in set (0.01 sec)
+
+7. mysql> SELECT Fname,Lname FROM Employee WHERE Super_ssn=(SELECT Ssn FROM Employee WHERE Fname='Franklin' AND Lname='Wong');
++--------+---------+
+| Fname  | Lname   |
++--------+---------+
+| John   | Smith   |
+| Joyce  | English |
+| Ramesh | Narayan |
++--------+---------+
+3 rows in set (0.00 sec)
+
+8. mysql>  SELECT Fname,Lname FROM Employee WHERE Ssn IN (SELECT Essn FROM Works_On WHERE Pno IN (SELECT Pnumber FROM Project WHERE Dnum=5));
++--------+---------+
+| Fname  | Lname   |
++--------+---------+
+| John   | Smith   |
+| Joyce  | English |
+| Ramesh | Narayan |
++--------+---------+
+3 rows in set (0.00 sec)
+
+9. mysql>  SELECT Pname,SUM(Hours) FROM Project,Works_On WHERE Pnumber=Pno GROUP BY Pname;
++-----------------+------------+
+| Pname           | SUM(Hours) |
++-----------------+------------+
+| Computerization |       40.0 |
+| Newbenefits     |       55.0 |
+| ProductX        |       52.5 |
+| ProductY        |       27.5 |
+| ProductZ        |       40.0 |
+| Reorganistaion  |       15.0 |
++-----------------+------------+
+6 rows in set (0.00 sec)
+
+10. mysql>  SELECT Fname, Lname FROM Employee WHERE NOT EXISTS ( SELECT Pnumber FROM Project WHERE NOT EXISTS ( SELECT * FROM Works_On WHERE Pnumber=Pno AND Essn=Ssn));
+Empty set (0.00 sec)
+
+11. mysql>  SELECT Fname, Lname FROM Employee WHERE NOT EXISTS (SELECT * FROM Works_On WHERE Essn=Ssn);
++----------+-------+
+| Fname    | Lname |
++----------+-------+
+| Franklin | Wong  |
+| Robert   | Scott |
++----------+-------+
+2 rows in set (0.00 sec)
+
+12 .mysql>  SELECT AVG(Salary) FROM Employee WHERE Ssn IN (SELECT Ssn FROM Employee WHERE Sex='F');
++-------------+
+| AVG(Salary) |
++-------------+
+|  31000.0000 |
++-------------+
+1 row in set (0.00 sec)
+
+13. mysql>  SELECT Fname,Lname,Address FROM Employee WHERE Ssn IN (SELECT Essn FROM Works_On WHERE Pno IN (SELECT Pnumber FROM Project WHERE Plocation LIKE '%Houston%')) AND Dno IN (SELECT Dnumber FROM Dept_Locations WHERE Dlocation NOT LIKE '%Houston%');
++----------+---------+--------------------------+
+| Fname    | Lname   | Address                  |
++----------+---------+--------------------------+
+| Ramesh   | Narayan | 975 Fire Oak, Humble, TX |
+| Jennifer | Wallace | 291 Berry, Bellaire, TX  |
++----------+---------+--------------------------+
+2 rows in set (0.00 sec)
+
+14. mysql>  SELECT Fname,Lname FROM Employee WHERE EXISTS (SELECT Mgr_ssn FROM Department WHERE Ssn=Mgr_ssn) AND NOT EXISTS (SELECT * FROM Dependent WHERE Essn=Ssn);
++--------+-------+
+| Fname  | Lname |
++--------+-------+
+| James  | Borg  |
+| Robert | Scott |
++--------+-------+
+2 rows in set (0.00 sec)
+
+15. mysql>  SELECT Fname,Lname FROM Employee WHERE Super_ssn IN (SELECT Ssn FROM Employee WHERE Super_ssn IN (SELECT Ssn FROM Employee WHERE Fname='James'));
++--------+---------+
+| Fname  | Lname   |
++--------+---------+
+| John   | Smith   |
+| Joyce  | English |
+| Ramesh | Narayan |
+| Alicia | Zelaya  |
+| Ahmad  | Jabbar  |
++--------+---------+
+5 rows in set (0.00 sec)
+
+16. mysql>  SELECT Fname,Lname FROM Employee WHERE Ssn IN (SELECT Essn FROM Works_On WHERE Pno IN(SELECT Pnumber FROM Project WHERE Dnum=10));
+Empty set (0.00 sec)
+
+16. mysql>  SELECT Fname,Lname FROM Employee WHERE Ssn IN (SELECT Essn FROM Works_On WHERE Pno IN(SELECT Pnumber FROM Project WHERE Dnum=1));
++----------+---------+
+| Fname    | Lname   |
++----------+---------+
+| James    | Borg    |
+| Jennifer | Wallace |
++----------+---------+
+2 rows in set (0.00 sec)
+
+
+17. mysql>  SELECT Fname,Lname FROM Employee A WHERE A.Ssn IN (SELECT DISTINCT Super_ssn FROM Employee WHERE Super_ssn IN (SELECT Mgr_ssn FROM Department WHERE (SELECT COUNT(*) FROM Project WHERE Dnum=Dnumber)>=2)) ORDER BY (SELECT COUNT(*) FROM Employee E WHERE E.Super_ssn=A.Ssn);
++----------+---------+
+| Fname    | Lname   |
++----------+---------+
+| Jennifer | Wallace |
++----------+---------+
+1 row in set (0.00 sec)
+
+18. mysql>  SELECT Fname,Lname,Dependent_name FROM Employee,Dependent WHERE Essn=Ssn AND Ssn IN (SELECT Ssn FROM Employee E WHERE E.Sex='F');
++----------+---------+----------------+
+| Fname    | Lname   | Dependent_name |
++----------+---------+----------------+
+| Joyce    | English | John           |
+| Jennifer | Wallace | Abner          |
++----------+---------+----------------+
+2 rows in set (0.00 sec)
+
+19. mysql>  SELECT Fname,Lname FROM Employee A WHERE Salary>(SELECT Salary FROM Employee WHERE Ssn IN (SELECT Mgr_ssn FROM Department WHERE A.Dno=Dnumber));
++----------+---------+
+| Fname    | Lname   |
++----------+---------+
+| Franklin | Wong    |
+| Ramesh   | Narayan |
+| Robert   | Scott   |
++----------+---------+
+3 rows in set (0.00 sec)
+
+20. mysql>  SELECT Fname,Lname FROM Employee WHERE Dno=(SELECT Dnumber FROM Department WHERE Dname='Administration') OR Ssn IN (SELECT Super_ssn FROM Employee WHERE Ssn IN (SELECT Ssn FROM Employee WHERE Dno=(SELECT Dnumber FROM Department WHERE Dname='Administration')));
++----------+---------+
+| Fname    | Lname   |
++----------+---------+
+| James    | Borg    |
+| Robert   | Scott   |
+| Jennifer | Wallace |
+| Ahmad    | Jabbar  |
+| Alicia   | Zelaya  |
++----------+---------+
+5 rows in set (0.00 sec)
+

@@ -1,0 +1,146 @@
+1. Display all odd numbered alternate records from ‘Employee’ table.
+
+mysql> select t.*
+    -> from (select t.*, (@rn := @rn + 1) as seqnum
+    ->       from employee t cross join
+    ->            (select @rn := 0) vars
+    ->       order by ssn
+    ->      ) t
+    -> where mod(seqnum, 2) = 0;
++--------------+------+-------+------+--------+----------+------+------------+------------+--------+
+| name         | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      | seqnum |
++--------------+------+-------+------+--------+----------+------+------------+------------+--------+
+| Chomu Ji     |   33 | 31627 | M    |  45000 |    98221 |  105 | 237889237  | 1996-01-02 |      2 |
+| Rakesh Rohan |   24 | 34532 | F    |  27000 |    64323 |  201 | 9832421413 | 1997-10-20 |      4 |
+| Jai Ganesh   |   24 | 43231 | M    |  39000 |    34223 |  101 | 9832421413 | 1997-10-20 |      6 |
+| Mahaam Singh |   29 | 54241 | M    |  10000 |    23132 |  102 | 9832421413 | 1997-10-20 |      8 |
+| Tanmay Bhatt |   31 | 98221 | M    |  35000 |     NULL |  105 | 3897481231 | 1998-02-02 |     10 |
++--------------+------+-------+------+--------+----------+------+------------+------------+--------+
+5 rows in set (0.00 sec)
+
+2.Display all even numbered alternate records from ‘Employee’ table.
+
+
+mysql> select t.*
+    ->     from (select t.*, (@rn := @rn + 1) as seqnum
+    ->           from employee t cross join
+    ->                (select @rn := 1) vars
+    ->           order by ssn
+    ->           ) t
+    ->     where mod(seqnum, 2) = 0;
++-------------+------+-------+------+--------+----------+------+------------+------------+--------+
+| name        | age  | ssn   | sex  | salary | superssn | dno  | mobile_no  | bdate      | seqnum |
++-------------+------+-------+------+--------+----------+------+------------+------------+--------+
+| Babu Rao    |   26 | 23132 | M    |  40000 |     NULL |  102 | 9832421413 | 1997-10-20 |      2 |
+| Sonam Gupta |   32 | 34223 | F    |  13000 |     NULL |  101 | 9832421413 | 1997-10-20 |      4 |
+| Gulab Singh |   25 | 39731 | M    |  26000 |    34223 |  101 | 9832421413 | 1997-10-20 |      6 |
+| Kaka Ji     |   33 | 46627 | M    |  40000 |    98221 |  105 | 237889237  | 1996-01-02 |      8 |
+| Faluda Dam  |   33 | 64323 | M    |  37000 |     NULL |  201 | 9832421413 | 1997-10-20 |     10 |
+| Halaal Ram  |   28 | 98271 | F    |  25000 |    64323 |  201 | 9832421413 | 1997-10-20 |     12 |
++-------------+------+-------+------+--------+----------+------+------------+------------+--------+
+6 rows in set (0.00 sec)
+
+
+3. Find the year from the given date.
+
+
+mysql> SELECT EXTRACT(YEAR FROM bdate) as year FROM employee;
++------+
+| year |
++------+
+| 1997 |
+| 1996 |
+| 1997 |
+| 1997 |
+| 1997 |
+| 1997 |
+| 1996 |
+| 1997 |
+| 1997 |
+| 1998 |
+| 1997 |
++------+
+11 rows in set (0.00 sec)
+
+
+4. Find year from birth date when the date is a VARCHAR column instead of the proper
+DATE data type.
+
+mysql> SELECT RIGHT(bdate,4) as YEAR FROM EMPLOYEE
+
++------+
+| year |
++------+
+| 1997 |
+| 1996 |
+| 1997 |
+| 1997 |
+| 1997 |
+| 1997 |
+| 1996 |
+| 1997 |
+| 1997 |
+| 1998 |
+| 1997 |
++------+
+11 rows in set (0.00 sec)
+
+
+5. Select first 3 characters of first name.
+
+mysql> SELECT LEFT(name,3) as name FROM EMPLOYEE;
++------+
+| name |
++------+
+| Bab  |
+| Cho  |
+| Son  |
+| Rak  |
+| Gul  |
+| Jai  |
+| Kak  |
+| Mah  |
+| Fal  |
+| Tan  |
+| Hal  |
++------+
+11 rows in set (0.00 sec)
+
+
+6. Check whether date passed to Query is the date of a given format or not.
+
+mysql> select if(date('12/12/2012') is not null,'IS DATE','NOT DATE') as 'YY-DD-MM';
++----------+
+| YY-DD-MM |
++----------+
+| NOT DATE |
++----------+
+1 row in set, 1 warning (0.04 sec)
+
+mysql> select if(date('2012/12/12') is not null,'IS DATE','NOT DATE') as 'YY-DD-MM';
++----------+
+| YY-DD-MM |
++----------+
+| IS DATE  |
++----------+
+1 row in set (0.00 sec)
+
+
+7. Find duplicate rows in a table of your choice.
+
+mysql> select name,COUNT(name) from employee group by name having count(name) > 1;
++----------+-------------+
+| name     | COUNT(name) |
++----------+-------------+
+| Chomu Ji |           2 |
++----------+-------------+
+1 row in set (0.00 sec)
+
+8. Delete the duplicate records retrieved using the above query without using a
+temporary table.
+
+
+9. Delete the duplicate records retrieved using the above query using a temporary table.
+
+create view as select name,COUNT(name) from employee group by name having count(name) > 1;
+
